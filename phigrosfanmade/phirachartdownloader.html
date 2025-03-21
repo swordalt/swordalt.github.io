@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phira Chart Downloader</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --primary: #bb86fc;
+            --secondary: #03dac6;
+            --text: #ffffff;
+            --text-secondary: #b0b0b0;
+            --error: #cf6679;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+        
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .input-group {
+            margin-bottom: 2rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+        
+        button:hover {
+            background-color: #9d65e5;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.05);
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+        }
+        
+        .error-message {
+            color: var(--error);
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .success-message {
+            color: var(--secondary);
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        footer {
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .loader {
+            display: none;
+            width: 48px;
+            height: 48px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            margin: 1rem auto;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .download-section {
+            display: none;
+            margin-top: 2rem;
+        }
+        
+        .download-section.show {
+            display: block;
+        }
+        
+        .file-info {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            word-break: break-all;
+        }
+        
+        .url-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Phira Chart Downloader</h1>
+        <p>Input a Phira chart ID to download the file directly onto your device.</p>
+        
+        <div class="input-group">
+            <input type="number" id="chart-id" placeholder="Input the chart ID here!" min="1">
+            <button id="download-btn">Fetch Chart</button>
+        </div>
+        
+        <div class="loader" id="loader"></div>
+        <div class="error-message" id="error-message"></div>
+        <div class="success-message" id="success-message"></div>
+        
+        <div class="download-section" id="download-section">
+            <div class="file-info" id="file-info"></div>
+            <button id="save-btn">Save Chart</button>
+        </div>
+        
+        <div class="url-info">
+            Tip: Create a direct link to download a particular chart by adding<br>"?id={chartID}" to the URL of this website!
+        </div>
+    </div>
+    
+    <footer>
+        <center>Made by "sword". | Not affiliated with TeamFlos or Phira.<br>Styling / theming inspired from "phira.moe".</center>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chartIdInput = document.getElementById('chart-id');
+            const downloadBtn = document.getElementById('download-btn');
+            const saveBtn = document.getElementById('save-btn');
+            const downloadSection = document.getElementById('download-section');
+            const fileInfo = document.getElementById('file-info');
+            const loader = document.getElementById('loader');
+            const errorMessage = document.getElementById('error-message');
+            const successMessage = document.getElementById('success-message');
+            
+            // CORS proxy URL
+            const corsProxy = 'https://corsproxy.io/?url=';
+            
+            // Store chart data
+            let chartData = null;
+            let chartFileName = '';
+            
+            // Function to download chart
+            async function downloadChart(chartId)  {
+                // Reset UI
+                downloadSection.classList.remove('show');
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+                saveBtn.disabled = true;
+                
+                // Validate input
+                if (!chartId || isNaN(chartId) || chartId <= 0) {
+                    errorMessage.textContent = 'Enter a valid chart ID. (Example: "1000")';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Show loader
+                loader.style.display = 'block';
+                downloadBtn.disabled = true;
+                
+                try {
+                    // Fetch chart info from API directly without CORS proxy
+                    const apiUrl = `https://api.phira.cn/chart/${chartId}`;
+                    const response = await fetch(apiUrl) ;
+                    
+                    // Check for 404 status specifically
+                    if (response.status === 404) {
+                        throw new Error('The chart either has been deleted, or does not exist.');
+                    }
+                    
+                    if (!response.ok) {
+                        throw new Error(`Phira's API did not give a proper response. Status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data.file) {
+                        throw new Error('Chart file information not found in API response');
+                    }
+                    
+                    // Extract file path from response
+                    const filePath = data.file;
+                    
+                    // Check if the file path uses the correct domain, if not, modify it
+                    let fileUrl = filePath;
+                    if (!fileUrl.includes('phira.5wyxi.com')) {
+                        // If the file URL doesn't contain the correct domain, try to extract the file ID
+                        const filePathParts = filePath.split('/');
+                        const fileId = filePathParts[filePathParts.length - 1];
+                        fileUrl = `https://phira.5wyxi.com/files/${fileId}`;
+                    }
+                    
+                    // Extract filename from the URL
+                    const fileUrlParts = fileUrl.split('/') ;
+                    chartFileName = fileUrlParts[fileUrlParts.length - 1];
+                    
+                    // Download the chart file through CORS proxy
+                    const fileResponse = await fetch(corsProxy + fileUrl);
+                    
+                    // Check for 404 status specifically for file download
+                    if (fileResponse.status === 404) {
+                        throw new Error('The chart file you requested either does not exist or has been deleted.');
+                    }
+                    
+                    if (!fileResponse.ok) {
+                        throw new Error(`File download failed with status ${fileResponse.status}`);
+                    }
+                    
+                    // Get file as blob
+                    chartData = await fileResponse.blob();
+                    
+                    // Update UI
+                    fileInfo.textContent = `File: ${chartFileName} (${formatFileSize(chartData.size)})`;
+                    downloadSection.classList.add('show');
+                    saveBtn.disabled = false;
+                    
+                    // Show success message
+                    successMessage.textContent = 'Fetched successfully! Click "Save Chart" to download it.';
+                    successMessage.style.display = 'block';
+                } catch (error) {
+                    console.error('Error:', error);
+                    errorMessage.textContent = `Error: ${error.message}`;
+                    errorMessage.style.display = 'block';
+                } finally {
+                    loader.style.display = 'none';
+                    downloadBtn.disabled = false;
+                }
+            }
+            
+            // Check for URL parameters on page load
+            function checkUrlParameters() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const chartId = urlParams.get('id');
+                
+                if (chartId) {
+                    // Set the input value
+                    chartIdInput.value = chartId;
+                    // Trigger download automatically
+                    downloadChart(chartId);
+                }
+            }
+            
+            // Download button click event
+            downloadBtn.addEventListener('click', function() {
+                const chartId = chartIdInput.value.trim();
+                downloadChart(chartId);
+            });
+            
+            // Save button click event
+            saveBtn.addEventListener('click', function() {
+                if (!chartData) {
+                    errorMessage.textContent = 'No chart data available to save';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Create download link
+                const downloadUrl = URL.createObjectURL(chartData);
+                const downloadLink = document.createElement('a');
+                downloadLink.href = downloadUrl;
+                
+                // Add .pez extension to the filename
+                downloadLink.download = chartFileName + '.pez';
+                
+                // Trigger download
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                
+                // Clean up
+                setTimeout(() => {
+                    URL.revokeObjectURL(downloadUrl);
+                }, 100);
+            });
+            
+            // Allow Enter key to trigger download
+            chartIdInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const chartId = chartIdInput.value.trim();
+                    downloadChart(chartId);
+                }
+            });
+            
+            // Helper function to format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // Check for URL parameters on page load
+            checkUrlParameters();
+        });
+    </script>
+</body>
+</html>
