@@ -1,0 +1,2515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phigros Fanmade Zip Utilities</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --disabled-color: #555555;
+            --reset-color: #f44336;
+            --warning-color: #ff9800;
+            --info-color: #2196F3;
+            --export-color: #9c27b0;
+            --compress-color: #00bcd4;
+            --background-color: #121212;
+            --card-color: #1e1e1e;
+            --text-color: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --border-radius: 8px;
+            --spacing: 20px;
+            --border-color: #333333;
+            --hover-color: #2e2e2e;
+            --action-btn-size: 32px;
+            --error-color: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: var(--spacing);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: var(--spacing);
+            padding: var(--spacing) 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        h2, h3 {
+            color: var(--text-color);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing);
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing);
+            margin-bottom: var(--spacing);
+            border: 1px solid var(--border-color);
+        }
+
+        .import-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing);
+            margin-bottom: var(--spacing);
+            margin-top: 30px; /* Added more space at the top */
+        }
+
+        .import-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: var(--spacing);
+            border-radius: var(--border-radius);
+            background-color: var(--card-color);
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease, background-color 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .import-option:hover {
+            transform: translateY(-5px);
+            background-color: var(--hover-color);
+        }
+
+        .import-option i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .import-option h3 {
+            margin-bottom: 10px;
+        }
+
+        .import-option p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 150px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:disabled {
+            background-color: var(--disabled-color);
+            cursor: not-allowed;
+            color: #888;
+        }
+
+        .btn-reset {
+            background-color: var(--reset-color);
+            color: white;
+        }
+
+        .btn-reset:disabled {
+            background-color: var(--disabled-color);
+            cursor: not-allowed;
+            color: #888;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:disabled {
+            background-color: var(--disabled-color);
+            cursor: not-allowed;
+            color: #888;
+        }
+
+        .btn-info {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        .btn-info:disabled {
+            background-color: var(--disabled-color);
+            cursor: not-allowed;
+            color: #888;
+        }
+
+        .btn-export {
+            background-color: var(--export-color);
+            color: white;
+        }
+
+        .btn-export:disabled {
+            background-color: var(--disabled-color);
+            cursor: not-allowed;
+            color: #888;
+        }
+
+        .btn-compress {
+            background-color: var(--compress-color);
+            color: white;
+        }
+
+        .btn-compress:disabled {
+            background-color: var(--disabled-color);
+            cursor: not-allowed;
+            color: #888;
+        }
+
+        .reset-container {
+            text-align: center;
+            margin-top: var(--spacing);
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .notifications-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .notification {
+            padding: 15px 25px;
+            background-color: #333;
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            max-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-content {
+            margin-bottom: 8px;
+        }
+
+        .notification-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .notification-btn {
+            background: none;
+            border: none;
+            color: white;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 2px 5px;
+        }
+
+        .notification.success {
+            background-color: var(--primary-color);
+        }
+
+        .notification.error {
+            background-color: var(--reset-color);
+        }
+
+        .notification.warning {
+            background-color: var(--warning-color);
+        }
+
+        .notification.info {
+            background-color: var(--info-color);
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .chart-info {
+            margin-top: var(--spacing);
+            display: none;
+        }
+
+        /* Icons */
+        .icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 10px;
+            fill: var(--primary-color);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-color);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* File input styling */
+        .file-input {
+            display: none;
+        }
+
+        /* Table styles */
+        .files-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            color: var(--text-color);
+        }
+
+        .files-table th, .files-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .files-table th {
+            background-color: var(--hover-color);
+            font-weight: bold;
+        }
+
+        .files-table tr:hover {
+            background-color: var(--hover-color);
+        }
+
+        .files-table-container {
+            margin-top: var(--spacing);
+            overflow-x: auto;
+            display: none;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .table-title {
+            margin: 0;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .table-btn {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            min-width: auto;
+        }
+
+        .flatten-container {
+            margin-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-control.error {
+            border-color: var(--error-color);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Action buttons */
+        .action-btn {
+            width: var(--action-btn-size);
+            height: var(--action-btn-size);
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+
+        .action-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: white;
+        }
+
+        .delete-btn {
+            background-color: var(--reset-color);
+        }
+
+        .copy-btn {
+            background-color: var(--primary-color);
+        }
+
+        .rename-btn {
+            background-color: var(--info-color);
+        }
+
+        .action-buttons {
+            white-space: nowrap;
+            width: 1%; /* Reduce width to just what's needed */
+        }
+
+        /* Info.yml editor styles */
+        .info-yml-form {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            margin-left: 8px;
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .tag {
+            background-color: var(--info-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .tag-remove {
+            margin-left: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .add-tag-input {
+            display: flex;
+            margin-top: 8px;
+        }
+
+        .add-tag-input input {
+            flex: 1;
+            margin-right: 8px;
+        }
+
+        .add-tag-btn {
+            padding: 8px 12px;
+            min-width: auto;
+        }
+
+        /* Info.txt editor styles */
+        .info-txt-form {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Audio player styles */
+        .audio-player-container {
+            margin-top: 20px;
+            display: none;
+            width: 100%;
+        }
+
+        .audio-player {
+            width: 100%;
+            height: 40px;
+            background-color: var(--background-color);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .audio-player:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Phigros Fanmade Zip Utilities</h1>
+            <p class="subtitle">Import, manage, and package your chart files!</p>
+        </header>
+
+        <main>
+            <div class="card">
+                <h2>Import Chart</h2>
+                <p>Select one of the following methods to import a Phigros fanmade chart:</p>
+                
+                <div class="import-options">
+                    <div class="import-option">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>
+                            <path d="M12 17l4-4h-3V9h-2v4H8l4 4z"/>
+                        </svg>
+                        <h3>Import Archive</h3>
+                        <p>Import a chart file (in .PEZ or .ZIP format).</p>
+                        <button id="btn-import-archive" class="btn btn-primary">Import Archive</button>
+                        <input type="file" id="archive-file-input" class="file-input" accept=".pez,.zip">
+                    </div>
+                    
+                    <div class="import-option">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+                            <path d="M12 17l-2-2h1v-3h2v3h1l-2 2z"/>
+                        </svg>
+                        <h3>Import Files</h3>
+                        <p>Select individual files from your device.</p>
+                        <button id="btn-import-files" class="btn btn-primary">Import Files</button>
+                        <input type="file" id="files-input" class="file-input" multiple>
+                    </div>
+                    
+                    <div class="import-option">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+                            <path d="M12 17l-2-2h1v-3h2v3h1l-2 2z"/>
+                        </svg>
+                        <h3>Fetch From Phira</h3>
+                        <p>Download a chart from Phira's online services.</p>
+                        <button id="btn-fetch-phira" class="btn btn-primary">Fetch From Phira</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="files-table-container card" id="files-table-container">
+                <div class="table-header">
+                    <h2 class="table-title">Imported Files</h2>
+                    <div class="table-actions">
+                        <button id="btn-add-info-yml" class="btn btn-info table-btn">Add info.yml</button>
+                        <button id="btn-add-info-txt" class="btn btn-info table-btn">Add info.txt</button>
+                        <button id="btn-add-file" class="btn btn-primary table-btn">Add File</button>
+                        <input type="file" id="add-file-input" class="file-input" multiple>
+                    </div>
+                </div>
+                
+                <table class="files-table" id="files-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Size</th>
+                            <th class="action-buttons">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="files-table-body">
+                        <!-- Files will be listed here -->
+                    </tbody>
+                </table>
+                
+                <div class="flatten-container">
+                    <button id="btn-flatten" class="btn btn-warning" disabled>Flatten Directory</button>
+                    <button id="btn-compress-json" class="btn btn-compress" disabled>Compress JSON</button>
+                </div>
+            </div>
+
+            <div class="reset-container">
+                <button id="btn-export" class="btn btn-export" disabled>Export Chart</button>
+                <button id="btn-reset" class="btn btn-reset" disabled>Reset Data</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Phira ID Modal -->
+    <div class="modal" id="phira-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Fetch from Phira</h3>
+                <button class="close-modal" id="close-phira-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="phira-id">Chart ID:</label>
+                    <input type="number" id="phira-id" class="form-control" placeholder="Enter a numerical chart ID here...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="fetch-phira-confirm">Fetch</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rename File Modal -->
+    <div class="modal" id="rename-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Rename File</h3>
+                <button class="close-modal" id="close-rename-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="rename-input">New filename:</label>
+                    <input type="text" id="rename-input" class="form-control" placeholder="Enter new filename">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="rename-confirm">Rename</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info.yml Editor Modal -->
+    <div class="modal" id="info-yml-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>info.yml (Phira)</h3>
+                <button class="close-modal" id="close-info-yml-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="info-yml-form">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-name">Name:</label>
+                                <input type="text" id="info-name" class="form-control" placeholder="Song/chart's name.">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-difficulty">Chart Constant:</label>
+                                <input type="number" id="info-difficulty" class="form-control" step="0.1" min="0" placeholder="13.5, 16.8, 15.9, etc.">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-level">Level:</label>
+                                <input type="text" id="info-level" class="form-control" placeholder="AT Lv.16, IN Lv.14, etc.">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-charter">Charter(s):</label>
+                                <input type="text" id="info-charter" class="form-control" placeholder="Charter(s)'s name.">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-composer">Composer(s):</label>
+                                <input type="text" id="info-composer" class="form-control" placeholder="Artist(s)'s name.">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-illustrator">Illustrator(s):</label>
+                                <input type="text" id="info-illustrator" class="form-control" placeholder="Illustrator(s)'s name.">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-chart">Chart File:</label>
+                                <input type="text" id="info-chart" class="form-control" placeholder="Chart's filename.">
+                                <div class="error-message" id="info-chart-error">File not found.</div>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-music">Audio File:</label>
+                                <input type="text" id="info-music" class="form-control" placeholder="Audio's filename.">
+                                <div class="error-message" id="info-music-error">File not found.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-illustration">Illustration File:</label>
+                                <input type="text" id="info-illustration" class="form-control" placeholder="Illustration's filename.">
+                                <div class="error-message" id="info-illustration-error">File not found.</div>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-unlock-video">Unlock Video (Optional):</label>
+                                <input type="text" id="info-unlock-video" class="form-control" placeholder="Unlock video's filename.">
+                                <div class="error-message" id="info-unlock-video-error">File not found.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-preview-start">Preview Starting Time:</label>
+                                <input type="number" id="info-preview-start" class="form-control" step="0.05" min="0" placeholder="Preview start time.">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-preview-end">Preview Ending Time:</label>
+                                <input type="number" id="info-preview-end" class="form-control" step="0.05" min="0" placeholder="Preview end time.">
+                                <div class="error-message" id="preview-time-error">Preview duration can't exceed 20 seconds.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="audio-player-container" id="audio-player-container">
+                        <audio controls class="audio-player" id="audio-player">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-aspect-ratio">Aspect Ratio (as decimal):</label>
+                                <input type="number" id="info-aspect-ratio" class="form-control" step="0" min="0" placeholder="16:9, 4:3, 3:2, etc.">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-background-dim">Background Brightness:</label>
+                                <input type="number" id="info-background-dim" class="form-control" step="0.1" min="0" max="1" placeholder="Default = 0.6">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-line-length">Line Length:</label>
+                                <input type="number" id="info-line-length" class="form-control" step="0.1" min="0" placeholder="Default = 6.0">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="info-offset">Offset (Seconds):</label>
+                                <input type="number" id="info-offset" class="form-control" step="0.05" placeholder="Chart's offset (seconds).">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="info-tip">Loading Tip (Optional):</label>
+                        <input type="text" id="info-tip" class="form-control" placeholder="Loading tip's text.">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tags:</label>
+                        <div class="tag-container" id="tags-container">
+                            <!-- Tags will be added here -->
+                        </div>
+                        <div class="add-tag-input">
+                            <input type="text" id="new-tag-input" class="form-control" placeholder="Enter a new tag here.">
+                            <button id="add-tag-btn" class="btn btn-primary add-tag-btn">Add</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="info-intro">Description (Optional):</label>
+                        <textarea id="info-intro" class="form-control" rows="3" placeholder="Write some comments / details about your chart."></textarea>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="info-hold-partial-cover">
+                        <label for="info-hold-partial-cover">Render partially-covered hold notes</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="info-yml-save">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info.txt Editor Modal -->
+    <div class="modal" id="info-txt-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>info.txt (RPE)</h3>
+                <button class="close-modal" id="close-info-txt-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="info-txt-form">
+                    <div class="form-group">
+                        <label for="info-txt-name">Name:</label>
+                        <input type="text" id="info-txt-name" class="form-control" placeholder="Song/chart's name.">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="info-txt-path">Path:</label>
+                        <input type="text" id="info-txt-path" class="form-control" placeholder="Chart's RPE ID.">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="info-txt-song">Audio File:</label>
+                        <input type="text" id="info-txt-song" class="form-control" placeholder="Audio's filename.">
+                        <div class="error-message" id="info-txt-song-error">File not found.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="info-txt-picture">Illustration File:</label>
+                        <input type="text" id="info-txt-picture" class="form-control" placeholder="Illustration's filename.">
+                        <div class="error-message" id="info-txt-picture-error">File not found.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="info-txt-chart">Chart File:</label>
+                        <input type="text" id="info-txt-chart" class="form-control" placeholder="Chart's filename.">
+                        <div class="error-message" id="info-txt-chart-error">File not found.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="info-txt-level">Level:</label>
+                        <input type="text" id="info-txt-level" class="form-control" placeholder="AT Lv.16, IN Lv.14, etc.">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="info-txt-composer">Composer(s):</label>
+                        <input type="text" id="info-txt-composer" class="form-control" placeholder="Artist(s)'s name.">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="info-txt-charter">Charter(s):</label>
+                        <input type="text" id="info-txt-charter" class="form-control" placeholder="Charter(s)'s name.">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="info-txt-save">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notifications-container" id="notifications-container"></div>
+
+    <script>
+        // DOM Elements
+        const btnImportArchive = document.getElementById('btn-import-archive');
+        const btnImportFiles = document.getElementById('btn-import-files');
+        const btnFetchPhira = document.getElementById('btn-fetch-phira');
+        const btnReset = document.getElementById('btn-reset');
+        const btnExport = document.getElementById('btn-export');
+        const btnFlatten = document.getElementById('btn-flatten');
+        const btnCompressJson = document.getElementById('btn-compress-json');
+        const btnAddInfoYml = document.getElementById('btn-add-info-yml');
+        const btnAddInfoTxt = document.getElementById('btn-add-info-txt');
+        const btnAddFile = document.getElementById('btn-add-file');
+        const notificationsContainer = document.getElementById('notifications-container');
+        const archiveFileInput = document.getElementById('archive-file-input');
+        const filesInput = document.getElementById('files-input');
+        const addFileInput = document.getElementById('add-file-input');
+        const filesTableContainer = document.getElementById('files-table-container');
+        const filesTableBody = document.getElementById('files-table-body');
+        const phiraModal = document.getElementById('phira-modal');
+        const closePhiraModal = document.getElementById('close-phira-modal');
+        const phiraIdInput = document.getElementById('phira-id');
+        const fetchPhiraConfirm = document.getElementById('fetch-phira-confirm');
+        const renameModal = document.getElementById('rename-modal');
+        const closeRenameModal = document.getElementById('close-rename-modal');
+        const renameInput = document.getElementById('rename-input');
+        const renameConfirm = document.getElementById('rename-confirm');
+        const infoYmlModal = document.getElementById('info-yml-modal');
+        const closeInfoYmlModal = document.getElementById('close-info-yml-modal');
+        const infoYmlSave = document.getElementById('info-yml-save');
+        const tagsContainer = document.getElementById('tags-container');
+        const newTagInput = document.getElementById('new-tag-input');
+        const addTagBtn = document.getElementById('add-tag-btn');
+        const infoTxtModal = document.getElementById('info-txt-modal');
+        const closeInfoTxtModal = document.getElementById('close-info-txt-modal');
+        const infoTxtSave = document.getElementById('info-txt-save');
+        const infoMusicInput = document.getElementById('info-music');
+        const audioPlayerContainer = document.getElementById('audio-player-container');
+        const audioPlayer = document.getElementById('audio-player');
+        const infoPreviewStart = document.getElementById('info-preview-start');
+        const infoPreviewEnd = document.getElementById('info-preview-end');
+        const previewTimeError = document.getElementById('preview-time-error');
+        const infoTip = document.getElementById('info-tip');
+
+        // File path validation fields
+        const filePathFields = {
+            yml: [
+                { input: 'info-chart', error: 'info-chart-error' },
+                { input: 'info-music', error: 'info-music-error' },
+                { input: 'info-illustration', error: 'info-illustration-error' },
+                { input: 'info-unlock-video', error: 'info-unlock-video-error' }
+            ],
+            txt: [
+                { input: 'info-txt-song', error: 'info-txt-song-error' },
+                { input: 'info-txt-picture', error: 'info-txt-picture-error' },
+                { input: 'info-txt-chart', error: 'info-txt-chart-error' }
+            ]
+        };
+
+        // Chart state
+        let chartLoaded = false;
+        let importedFiles = [];
+        let hasNestedFolders = false;
+        let hasJsonFiles = false;
+        let lastDeletedFile = null;
+        let lastRenamedFile = null;
+        let lastRenamedIndex = -1;
+        let notificationCounter = 0;
+        let currentTags = [];
+        let hasInfoYml = false;
+        let hasInfoTxt = false;
+        let originalJsonFiles = []; // Store original JSON files for undo
+        let phiraDownloadNotificationId = null;
+        let currentAudioUrl = null;
+
+        // Show notification
+        function showNotification(message, type = 'success', undoAction = null) {
+            const id = 'notification-' + (notificationCounter++);
+            
+            const notificationElement = document.createElement('div');
+            notificationElement.id = id;
+            notificationElement.className = 'notification ' + type;
+            
+            const contentElement = document.createElement('div');
+            contentElement.className = 'notification-content';
+            contentElement.textContent = message;
+            notificationElement.appendChild(contentElement);
+            
+            if (undoAction) {
+                const actionsElement = document.createElement('div');
+                actionsElement.className = 'notification-actions';
+                
+                const undoButton = document.createElement('button');
+                undoButton.className = 'notification-btn';
+                undoButton.textContent = 'Undo';
+                undoButton.addEventListener('click', () => {
+                    undoAction();
+                    removeNotification(id);
+                });
+                
+                actionsElement.appendChild(undoButton);
+                notificationElement.appendChild(actionsElement);
+            }
+            
+            notificationsContainer.appendChild(notificationElement);
+            
+            // Force reflow to trigger animation
+            void notificationElement.offsetWidth;
+            
+            notificationElement.classList.add('show');
+            
+            setTimeout(() => {
+                removeNotification(id);
+            }, 5000); // Changed from 3000 to 5000 ms (5 seconds)
+            
+            return id;
+        }
+        
+        // Show loading notification
+        function showLoadingNotification(message) {
+            const id = 'notification-' + (notificationCounter++);
+            
+            const notificationElement = document.createElement('div');
+            notificationElement.id = id;
+            notificationElement.className = 'notification info';
+            
+            const contentElement = document.createElement('div');
+            contentElement.className = 'notification-content';
+            
+            const spinner = document.createElement('div');
+            spinner.className = 'spinner';
+            contentElement.appendChild(spinner);
+            
+            const textNode = document.createTextNode(message);
+            contentElement.appendChild(textNode);
+            
+            notificationElement.appendChild(contentElement);
+            notificationsContainer.appendChild(notificationElement);
+            
+            // Force reflow to trigger animation
+            void notificationElement.offsetWidth;
+            
+            notificationElement.classList.add('show');
+            
+            return id;
+        }
+        
+        // Update loading notification
+        function updateLoadingNotification(id, message, type = 'success') {
+            const notification = document.getElementById(id);
+            if (notification) {
+                notification.className = 'notification ' + type + ' show';
+                const contentElement = notification.querySelector('.notification-content');
+                if (contentElement) {
+                    // Remove spinner
+                    const spinner = contentElement.querySelector('.spinner');
+                    if (spinner) {
+                        contentElement.removeChild(spinner);
+                    }
+                    contentElement.textContent = message;
+                }
+                
+                setTimeout(() => {
+                    removeNotification(id);
+                }, 5000);
+            }
+        }
+        
+        // Remove notification
+        function removeNotification(id) {
+            const notification = document.getElementById(id);
+            if (notification) {
+                notification.classList.remove('show');
+                
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }
+        }
+
+        // Check if info files exist
+        function checkInfoFiles() {
+            hasInfoYml = false;
+            hasInfoTxt = false;
+            
+            for (const file of importedFiles) {
+                const filename = file.name.toLowerCase();
+                if (filename.endsWith('/info.yml') || filename === 'info.yml') {
+                    hasInfoYml = true;
+                }
+                if (filename.endsWith('/info.txt') || filename === 'info.txt') {
+                    hasInfoTxt = true;
+                }
+            }
+            
+            // Update button labels
+            btnAddInfoYml.textContent = hasInfoYml ? 'Edit info.yml' : 'Add info.yml';
+            btnAddInfoTxt.textContent = hasInfoTxt ? 'Edit info.txt' : 'Add info.txt';
+        }
+
+        // Check if JSON files exist
+        function checkJsonFiles() {
+            hasJsonFiles = false;
+            
+            for (const file of importedFiles) {
+                const filename = file.name.toLowerCase();
+                if (filename.endsWith('.json')) {
+                    hasJsonFiles = true;
+                    break;
+                }
+            }
+            
+            return hasJsonFiles;
+        }
+
+        // Update button states
+        function updateButtonStates() {
+            btnReset.disabled = !chartLoaded;
+            btnExport.disabled = !chartLoaded;
+            btnFlatten.disabled = !chartLoaded || !hasNestedFolders;
+            btnCompressJson.disabled = !chartLoaded || !checkJsonFiles();
+            
+            // Disable all import buttons when files are loaded
+            if (chartLoaded) {
+                btnImportArchive.disabled = true;
+                btnImportFiles.disabled = true;
+                btnFetchPhira.disabled = true;
+            } else {
+                btnImportArchive.disabled = false;
+                btnImportFiles.disabled = false;
+                btnFetchPhira.disabled = false;
+            }
+            
+            // Check for info.yml and info.txt files
+            checkInfoFiles();
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Copy text to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification(`Copied "${text}" to clipboard.`);
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+                showNotification('Failed to copy to clipboard', 'error');
+            });
+        }
+
+        // Delete file from table
+        function deleteFile(index) {
+            // Create a deep copy of the file to be deleted
+            const fileToDelete = importedFiles[index];
+            const fileBlob = fileToDelete.slice(0, fileToDelete.size, fileToDelete.type);
+            lastDeletedFile = new File([fileBlob], fileToDelete.name, {
+                type: fileToDelete.type,
+                lastModified: fileToDelete.lastModified
+            });
+            lastDeletedFile.index = index;
+            
+            importedFiles.splice(index, 1);
+            renderFilesTable();
+            
+            if (importedFiles.length === 0) {
+                chartLoaded = false;
+                hasNestedFolders = false;
+                hasJsonFiles = false;
+                filesTableContainer.style.display = 'none';
+                updateButtonStates();
+                showNotification('All files have been deleted.');
+            } else {
+                const undoDelete = () => {
+                    if (lastDeletedFile) {
+                        importedFiles.splice(lastDeletedFile.index, 0, lastDeletedFile);
+                        renderFilesTable();
+                        showNotification('File restored.');
+                        lastDeletedFile = null;
+                    }
+                };
+                
+                showNotification('File deleted.', 'success', undoDelete);
+            }
+        }
+
+        // Rename file
+        function openRenameDialog(index) {
+            const file = importedFiles[index];
+            const filename = file.name;
+            const lastDotIndex = filename.lastIndexOf('.');
+            const nameWithoutExt = lastDotIndex !== -1 ? filename.substring(0, lastDotIndex) : filename;
+            const extension = lastDotIndex !== -1 ? filename.substring(lastDotIndex) : '';
+            
+            renameInput.value = filename;
+            renameInput.dataset.extension = extension;
+            renameInput.dataset.index = index;
+            
+            renameModal.style.display = 'flex';
+            renameInput.focus();
+            
+            // Select filename without extension
+            if (lastDotIndex !== -1) {
+                renameInput.setSelectionRange(0, lastDotIndex);
+            } else {
+                renameInput.select();
+            }
+        }
+
+        // Confirm rename
+        function confirmRename() {
+            const index = parseInt(renameInput.dataset.index);
+            const extension = renameInput.dataset.extension;
+            const newName = renameInput.value;
+            
+            if (newName && index >= 0 && index < importedFiles.length) {
+                const oldFile = importedFiles[index];
+                
+                // Create a deep copy of the file before renaming
+                const fileBlob = oldFile.slice(0, oldFile.size, oldFile.type);
+                lastRenamedFile = new File([fileBlob], oldFile.name, {
+                    type: oldFile.type,
+                    lastModified: oldFile.lastModified
+                });
+                lastRenamedIndex = index;
+                
+                // Create a new file with the new name
+                const newFile = new File([oldFile], newName, { type: oldFile.type });
+                importedFiles[index] = newFile;
+                
+                renderFilesTable();
+                renameModal.style.display = 'none';
+                
+                const undoRename = () => {
+                    if (lastRenamedFile && lastRenamedIndex >= 0) {
+                        importedFiles[lastRenamedIndex] = lastRenamedFile;
+                        renderFilesTable();
+                        showNotification('Rename undone.');
+                        lastRenamedFile = null;
+                        lastRenamedIndex = -1;
+                    }
+                };
+                
+                showNotification(`File renamed to "${newName}".`, 'success', undoRename);
+            } else {
+                showNotification('Invalid filename', 'error');
+            }
+        }
+
+        // Render files table
+        function renderFilesTable() {
+            filesTableBody.innerHTML = '';
+            
+            importedFiles.forEach((file, index) => {
+                const row = document.createElement('tr');
+                
+                const nameCell = document.createElement('td');
+                nameCell.textContent = file.name;
+                
+                const sizeCell = document.createElement('td');
+                sizeCell.textContent = formatFileSize(file.size);
+                
+                const actionsCell = document.createElement('td');
+                actionsCell.className = 'action-buttons';
+                
+                // Delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'action-btn delete-btn';
+                deleteBtn.title = 'Delete File';
+                deleteBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
+                deleteBtn.addEventListener('click', () => deleteFile(index));
+                
+                // Copy name button
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'action-btn copy-btn';
+                copyBtn.title = 'Copy Filename';
+                copyBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
+                copyBtn.addEventListener('click', () => copyToClipboard(file.name));
+                
+                // Rename button
+                const renameBtn = document.createElement('button');
+                renameBtn.className = 'action-btn rename-btn';
+                renameBtn.title = 'Rename File';
+                renameBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
+                renameBtn.addEventListener('click', () => openRenameDialog(index));
+                
+                actionsCell.appendChild(deleteBtn);
+                actionsCell.appendChild(copyBtn);
+                actionsCell.appendChild(renameBtn);
+                
+                row.appendChild(nameCell);
+                row.appendChild(sizeCell);
+                row.appendChild(actionsCell);
+                
+                filesTableBody.appendChild(row);
+            });
+            
+            // Update button states after rendering
+            updateButtonStates();
+        }
+
+        // Add files to table
+        function addFilesToTable(files) {
+            // Add files to array
+            for (const file of files) {
+                importedFiles.push(file);
+            }
+            
+            // Render the table
+            renderFilesTable();
+            
+            // Show table and update state
+            filesTableContainer.style.display = 'block';
+            chartLoaded = true;
+            updateButtonStates();
+        }
+
+        // Check for nested folders
+        function checkForNestedFolders(paths) {
+            const folders = new Set();
+            hasNestedFolders = false;
+            
+            for (const path of paths) {
+                const parts = path.split('/');
+                if (parts.length > 2) { // More than one folder level
+                    hasNestedFolders = true;
+                    return true;
+                }
+                
+                if (parts.length === 2 && parts[0]) {
+                    folders.add(parts[0]);
+                }
+            }
+            
+            return folders.size > 0;
+        }
+
+        // Flatten directory structure
+        function flattenDirectory() {
+            const newFiles = [];
+            
+            for (const file of importedFiles) {
+                const filename = file.name;
+                const parts = filename.split('/');
+                const flatName = parts[parts.length - 1];
+                
+                // Create a new file with the flattened name
+                const newFile = new File([file], flatName, { type: file.type });
+                newFiles.push(newFile);
+            }
+            
+            importedFiles = newFiles;
+            hasNestedFolders = false;
+            renderFilesTable();
+            updateButtonStates();
+            
+            showNotification('Directory structure flattened successfully');
+        }
+
+        // Compress JSON files
+        async function compressJsonFiles() {
+            // Store original JSON files for undo
+            originalJsonFiles = [];
+            const jsonIndices = [];
+            
+            // Find all JSON files and store their original content
+            for (let i = 0; i < importedFiles.length; i++) {
+                const file = importedFiles[i];
+                const filename = file.name.toLowerCase();
+                
+                if (filename.endsWith('.json')) {
+                    try {
+                        const content = await file.text();
+                        originalJsonFiles.push({
+                            index: i,
+                            name: file.name,
+                            content: content
+                        });
+                        jsonIndices.push(i);
+                    } catch (error) {
+                        console.error('Error reading JSON file:', error);
+                    }
+                }
+            }
+            
+            // Compress each JSON file
+            let compressedCount = 0;
+            
+            for (const jsonFile of originalJsonFiles) {
+                try {
+                    const content = jsonFile.content;
+                    
+                    // Parse and stringify to compress
+                    const jsonObj = JSON.parse(content);
+                    const compressedContent = JSON.stringify(jsonObj);
+                    
+                    // Only update if compression actually reduced size
+                    if (compressedContent.length < content.length) {
+                        // Create a new file with compressed content
+                        const newFile = new File([compressedContent], jsonFile.name, { type: 'application/json' });
+                        importedFiles[jsonFile.index] = newFile;
+                        compressedCount++;
+                    }
+                } catch (error) {
+                    console.error('Error compressing JSON file:', error);
+                }
+            }
+            
+            // Update the table
+            renderFilesTable();
+            
+            // Show notification with undo option
+            if (compressedCount > 0) {
+                const undoCompress = () => {
+                    // Restore original JSON files
+                    for (const original of originalJsonFiles) {
+                        const newFile = new File([original.content], original.name, { type: 'application/json' });
+                        importedFiles[original.index] = newFile;
+                    }
+                    renderFilesTable();
+                    showNotification('JSON compression undone.');
+                    originalJsonFiles = [];
+                };
+                
+                showNotification(`Compressed ${compressedCount} JSON file(s).`, 'success', undoCompress);
+            } else {
+                showNotification('No JSON files were compressed.', 'info');
+            }
+        }
+
+        // Export files as PEZ
+        async function exportFiles() {
+            try {
+                // Check if JSZip is loaded, if not load it
+                if (typeof JSZip === 'undefined') {
+                    // Create script element to load JSZip
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+                    document.head.appendChild(script);
+                    
+                    // Wait for script to load
+                    await new Promise((resolve, reject) => {
+                        script.onload = resolve;
+                        script.onerror = reject;
+                    });
+                }
+                
+                // Create a new zip file
+                const zip = new JSZip();
+                
+                // Add all files to the zip
+                for (const file of importedFiles) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    zip.file(file.name, arrayBuffer);
+                }
+                
+                // Generate the zip file
+                const content = await zip.generateAsync({
+                    type: 'blob',
+                    compression: 'DEFLATE',
+                    compressionOptions: { level: 9 }
+                });
+                
+                // Create a download link
+                const url = URL.createObjectURL(content);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'chart.pez';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showNotification('Chart exported successfully as a PEZ file.');
+                
+            } catch (error) {
+                console.error('Error exporting files:', error);
+                showNotification('Failed to export files: ' + error.message, 'error');
+            }
+        }
+
+        // Extract archive contents
+        async function extractArchive(file) {
+            try {
+                // Check if JSZip is loaded, if not load it
+                if (typeof JSZip === 'undefined') {
+                    // Create script element to load JSZip
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+                    document.head.appendChild(script);
+                    
+                    // Wait for script to load
+                    await new Promise((resolve, reject) => {
+                        script.onload = resolve;
+                        script.onerror = reject;
+                    });
+                }
+                
+                // Read the file
+                const arrayBuffer = await file.arrayBuffer();
+                const zip = await JSZip.loadAsync(arrayBuffer);
+                
+                const extractedFiles = [];
+                const filePaths = [];
+                
+                // Process each file in the archive
+                const promises = [];
+                zip.forEach((relativePath, zipEntry) => {
+                    if (!zipEntry.dir) {
+                        filePaths.push(relativePath);
+                        const promise = zipEntry.async('blob').then(blob => {
+                            const extractedFile = new File([blob], relativePath, { type: blob.type });
+                            extractedFiles.push(extractedFile);
+                        });
+                        promises.push(promise);
+                    }
+                });
+                
+                await Promise.all(promises);
+                
+                if (extractedFiles.length > 0) {
+                    // Check for nested folders
+                    const hasNested = checkForNestedFolders(filePaths);
+                    hasNestedFolders = hasNested;
+                    
+                    addFilesToTable(extractedFiles);
+                    showNotification(`Extracted ${extractedFiles.length} file(s) from archive.`);
+                    
+                    if (hasNested) {
+                        showNotification('Nested directories detected. Use "Flatten Directory" to push files to the top-most layer.', 'warning');
+                    }
+                } else {
+                    showNotification('No files were found in the archive.', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error extracting archive:', error);
+                showNotification('Failed to extract archive: ' + error.message, 'error');
+                
+                // Fallback: add the archive as a single file
+                addFilesToTable([file]);
+            }
+        }
+
+        // Import archive file
+        function importArchive(file) {
+            if (file) {
+                // Check if file is PEZ or ZIP
+                const fileExt = file.name.split('.').pop().toLowerCase();
+                if (fileExt !== 'pez' && fileExt !== 'zip') {
+                    showNotification('Please select a PEZ or ZIP file', 'error');
+                    return;
+                }
+
+                // Extract archive contents
+                extractArchive(file);
+            }
+        }
+
+        // Import multiple files
+        function importFiles(files) {
+            if (files.length > 0) {
+                addFilesToTable(Array.from(files));
+                showNotification(`${files.length} file(s) imported successfully.`);
+            }
+        }
+
+        // Fetch from Phira
+        async function fetchFromPhira(chartId) {
+            try {
+                // Show loading notification
+                phiraDownloadNotificationId = showLoadingNotification(`Downloading chart ${chartId} from Phira...`);
+                
+                // Fetch chart data from Phira API
+                const response = await fetch(`https://api.phira.cn/chart/${chartId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch chart: ${response.status} ${response.statusText}`);
+                }
+                
+                const chartData = await response.json();
+                
+                if (!chartData.file) {
+                    throw new Error('No file URL found in chart data');
+                }
+                
+                // Update notification
+                updateLoadingNotification(phiraDownloadNotificationId, `Chart found, downloading file...`, 'info');
+                
+                // Use CORS proxy to download the file
+                const fileUrl = `https://corsproxy.io/?url=${encodeURIComponent(chartData.file)}`;
+                const fileResponse = await fetch(fileUrl);
+                
+                if (!fileResponse.ok) {
+                    throw new Error(`Failed to download chart file: ${fileResponse.status} ${fileResponse.statusText}`);
+                }
+                
+                // Convert response to blob
+                const blob = await fileResponse.blob();
+                
+                // Create a File object
+                const fileName = chartData.name ? `${chartData.name}.pez` : `phira_chart_${chartId}.pez`;
+                const file = new File([blob], fileName, { type: blob.type });
+                
+                // Update notification
+                updateLoadingNotification(phiraDownloadNotificationId, `Chart downloaded, extracting...`, 'info');
+                
+                // Extract the archive
+                await extractArchive(file);
+                
+                // Update notification
+                updateLoadingNotification(phiraDownloadNotificationId, `Chart "${fileName}" downloaded and extracted successfully!`, 'success');
+                
+            } catch (error) {
+                console.error('Error fetching from Phira:', error);
+                if (phiraDownloadNotificationId) {
+                    updateLoadingNotification(phiraDownloadNotificationId, `Error: ${error.message}`, 'error');
+                } else {
+                    showNotification(`Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Reset everything
+        function resetAll() {
+            chartLoaded = false;
+            hasNestedFolders = false;
+            hasJsonFiles = false;
+            importedFiles = [];
+            originalJsonFiles = [];
+            filesTableBody.innerHTML = '';
+            filesTableContainer.style.display = 'none';
+            updateButtonStates();
+            showNotification('All data has been reset.', 'success');
+        }
+
+        // Find info.yml file
+        function findInfoYmlFile() {
+            for (let i = 0; i < importedFiles.length; i++) {
+                const file = importedFiles[i];
+                const filename = file.name.toLowerCase();
+                if (filename.endsWith('/info.yml') || filename === 'info.yml') {
+                    return { file, index: i };
+                }
+            }
+            return null;
+        }
+
+        // Find info.txt file
+        function findInfoTxtFile() {
+            for (let i = 0; i < importedFiles.length; i++) {
+                const file = importedFiles[i];
+                const filename = file.name.toLowerCase();
+                if (filename.endsWith('/info.txt') || filename === 'info.txt') {
+                    return { file, index: i };
+                }
+            }
+            return null;
+        }
+
+        // Find file by name
+        function findFileByName(filename) {
+            if (!filename) return null;
+            
+            // Normalize filename
+            const normalizedFilename = filename.trim();
+            if (!normalizedFilename) return null;
+            
+            // Check if file exists
+            for (const file of importedFiles) {
+                const filePath = file.name;
+                // Check exact match or match at end of path
+                if (filePath === normalizedFilename || filePath.endsWith('/' + normalizedFilename)) {
+                    return file;
+                }
+            }
+            
+            return null;
+        }
+
+        // Check if file exists in imported files
+        function fileExistsInArchive(filename) {
+            if (!filename) return true; // Empty filename is considered valid
+            
+            // Normalize filename
+            const normalizedFilename = filename.trim();
+            if (!normalizedFilename) return true;
+            
+            // Check if file exists
+            for (const file of importedFiles) {
+                const filePath = file.name;
+                // Check exact match or match at end of path
+                if (filePath === normalizedFilename || filePath.endsWith('/' + normalizedFilename)) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        // Validate file path field
+        function validateFilePathField(inputId, errorId) {
+            const input = document.getElementById(inputId);
+            const errorElement = document.getElementById(errorId);
+            
+            if (!input || !errorElement) return;
+            
+            const value = input.value.trim();
+            
+            // Skip validation if field is empty
+            if (!value) {
+                input.classList.remove('error');
+                errorElement.style.display = 'none';
+                return true;
+            }
+            
+            // Check if file exists
+            const exists = fileExistsInArchive(value);
+            
+            if (exists) {
+                input.classList.remove('error');
+                errorElement.style.display = 'none';
+                return true;
+            } else {
+                input.classList.add('error');
+                errorElement.style.display = 'block';
+                return false;
+            }
+        }
+
+        // Validate all file path fields
+        function validateAllFilePathFields(type) {
+            const fields = filePathFields[type];
+            let allValid = true;
+            
+            for (const field of fields) {
+                const isValid = validateFilePathField(field.input, field.error);
+                allValid = allValid && isValid;
+            }
+            
+            return allValid;
+        }
+
+        // Setup file path validation
+        function setupFilePathValidation(type) {
+            const fields = filePathFields[type];
+            
+            for (const field of fields) {
+                const input = document.getElementById(field.input);
+                if (input) {
+                    input.addEventListener('input', () => {
+                        validateFilePathField(field.input, field.error);
+                    });
+                    input.addEventListener('blur', () => {
+                        validateFilePathField(field.input, field.error);
+                    });
+                }
+            }
+        }
+
+        // Validate preview time range
+        function validatePreviewTimeRange() {
+            const startTime = parseFloat(infoPreviewStart.value) || 0;
+            const endTime = parseFloat(infoPreviewEnd.value) || 15;
+            
+            if (endTime - startTime > 20) {
+                previewTimeError.style.display = 'block';
+                infoPreviewEnd.classList.add('error');
+                return false;
+            } else {
+                previewTimeError.style.display = 'none';
+                infoPreviewEnd.classList.remove('error');
+                return true;
+            }
+        }
+
+        // Setup preview time validation
+        function setupPreviewTimeValidation() {
+            infoPreviewStart.addEventListener('input', validatePreviewTimeRange);
+            infoPreviewEnd.addEventListener('input', validatePreviewTimeRange);
+            infoPreviewStart.addEventListener('blur', validatePreviewTimeRange);
+            infoPreviewEnd.addEventListener('blur', validatePreviewTimeRange);
+        }
+
+        // Update audio player
+        function updateAudioPlayer() {
+            const musicFileName = infoMusicInput.value.trim();
+            
+            if (musicFileName) {
+                const musicFile = findFileByName(musicFileName);
+                
+                if (musicFile) {
+                    // Create object URL for the audio file
+                    if (currentAudioUrl) {
+                        URL.revokeObjectURL(currentAudioUrl);
+                    }
+                    
+                    currentAudioUrl = URL.createObjectURL(musicFile);
+                    audioPlayer.src = currentAudioUrl;
+                    audioPlayerContainer.style.display = 'block';
+                } else {
+                    audioPlayerContainer.style.display = 'none';
+                }
+            } else {
+                audioPlayerContainer.style.display = 'none';
+            }
+        }
+
+        // Setup audio player
+        function setupAudioPlayer() {
+            infoMusicInput.addEventListener('input', updateAudioPlayer);
+            infoMusicInput.addEventListener('blur', updateAudioPlayer);
+        }
+
+        // Setup tip field
+        function setupTipField() {
+            infoTip.addEventListener('focus', () => {
+                if (!infoTip.value.trim()) {
+                    infoTip.value = 'Tip: ';
+                }
+            });
+        }
+
+        // Parse YAML
+        function parseYAML(text) {
+            try {
+                // Simple YAML parser for our specific needs
+                const result = {};
+                const lines = text.split('\n');
+                let currentArray = null;
+                let currentArrayName = null;
+                
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine || trimmedLine.startsWith('#')) continue;
+                    
+                    if (currentArray !== null) {
+                        if (trimmedLine.startsWith('-')) {
+                            // Array item
+                            const value = trimmedLine.substring(1).trim();
+                            // Remove quotes if present
+                            const cleanValue = value.startsWith('"') && value.endsWith('"') ? 
+                                value.substring(1, value.length - 1) : value;
+                            currentArray.push(cleanValue);
+                        } else {
+                            // End of array
+                            result[currentArrayName] = currentArray;
+                            currentArray = null;
+                            currentArrayName = null;
+                            // Process this line as normal
+                            if (trimmedLine.includes(':')) {
+                                const [key, value] = processYamlLine(trimmedLine);
+                                if (value === null) {
+                                    // New array
+                                    currentArray = [];
+                                    currentArrayName = key;
+                                } else {
+                                    result[key] = value;
+                                }
+                            }
+                        }
+                    } else if (trimmedLine.includes(':')) {
+                        const [key, value] = processYamlLine(trimmedLine);
+                        if (value === null && !trimmedLine.endsWith('null')) {
+                            // New array
+                            currentArray = [];
+                            currentArrayName = key;
+                        } else {
+                            result[key] = value;
+                        }
+                    }
+                }
+                
+                // Handle any remaining array
+                if (currentArray !== null) {
+                    result[currentArrayName] = currentArray;
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('Error parsing YAML:', error);
+                return {};
+            }
+        }
+
+        // Process YAML line
+        function processYamlLine(line) {
+            const colonIndex = line.indexOf(':');
+            const key = line.substring(0, colonIndex).trim();
+            let value = line.substring(colonIndex + 1).trim();
+            
+            if (!value) return [key, null]; // Array or null
+            if (value === 'null') return [key, null];
+            
+            // Handle quoted strings
+            if ((value.startsWith('"') && value.endsWith('"')) || 
+                (value.startsWith("'") && value.endsWith("'"))) {
+                return [key, value.substring(1, value.length - 1)];
+            }
+            
+            // Handle numbers
+            if (!isNaN(value)) {
+                return [key, parseFloat(value)];
+            }
+            
+            // Handle booleans
+            if (value === 'true') return [key, true];
+            if (value === 'false') return [key, false];
+            
+            return [key, value];
+        }
+
+        // Generate YAML
+        function generateYAML(data) {
+            let yaml = '';
+            
+            for (const [key, value] of Object.entries(data)) {
+                if (value === null) {
+                    yaml += `${key}: null\n`;
+                } else if (Array.isArray(value)) {
+                    yaml += `${key}:\n`;
+                    for (const item of value) {
+                        // Quote strings with special characters
+                        const needsQuotes = typeof item === 'string' && 
+                            (item.includes(':') || item.includes('#') || 
+                             item.includes("'") || item.includes('"') ||
+                             item.trim() !== item);
+                        
+                        if (needsQuotes) {
+                            yaml += `- "${item.replace(/"/g, '\\"')}"\n`;
+                        } else {
+                            yaml += `- ${item}\n`;
+                        }
+                    }
+                } else if (typeof value === 'string') {
+                    // Quote strings with special characters
+                    const needsQuotes = value.includes(':') || value.includes('#') || 
+                                       value.includes("'") || value.includes('"') ||
+                                       value.trim() !== value;
+                    
+                    if (needsQuotes) {
+                        yaml += `${key}: "${value.replace(/"/g, '\\"')}"\n`;
+                    } else if (value === '') {
+                        yaml += `${key}: ''\n`;
+                    } else {
+                        yaml += `${key}: ${value}\n`;
+                    }
+                } else {
+                    yaml += `${key}: ${value}\n`;
+                }
+            }
+            
+            return yaml;
+        }
+
+        // Parse info.txt
+        function parseInfoTxt(text) {
+            try {
+                const result = {};
+                const lines = text.split('\n');
+                
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine || trimmedLine.startsWith('#')) continue;
+                    
+                    const colonIndex = trimmedLine.indexOf(':');
+                    if (colonIndex !== -1) {
+                        const key = trimmedLine.substring(0, colonIndex).trim();
+                        const value = trimmedLine.substring(colonIndex + 1).trim();
+                        result[key] = value;
+                    }
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('Error parsing info.txt:', error);
+                return {};
+            }
+        }
+
+        // Generate info.txt
+        function generateInfoTxt(data) {
+            let txt = '#\n';
+            
+            for (const [key, value] of Object.entries(data)) {
+                if (value !== null && value !== undefined && value !== '') {
+                    txt += `${key}: ${value}\n`;
+                }
+            }
+            
+            return txt;
+        }
+
+        // Open info.yml editor
+        async function openInfoYmlEditor() {
+            // Clear previous tags
+            tagsContainer.innerHTML = '';
+            currentTags = [];
+            
+            // Reset form fields
+            document.getElementById('info-name').value = '';
+            document.getElementById('info-difficulty').value = '';
+            document.getElementById('info-level').value = '';
+            document.getElementById('info-charter').value = '';
+            document.getElementById('info-composer').value = '';
+            document.getElementById('info-illustrator').value = '';
+            document.getElementById('info-chart').value = '';
+            document.getElementById('info-music').value = '';
+            document.getElementById('info-illustration').value = '';
+            document.getElementById('info-unlock-video').value = '';
+            document.getElementById('info-preview-start').value = '0.0';
+            document.getElementById('info-preview-end').value = '15.0';
+            document.getElementById('info-aspect-ratio').value = '1.7777778';
+            document.getElementById('info-background-dim').value = '0.6';
+            document.getElementById('info-line-length').value = '6.0';
+            document.getElementById('info-offset').value = '0.0';
+            document.getElementById('info-tip').value = '';
+            document.getElementById('info-intro').value = '';
+            document.getElementById('info-hold-partial-cover').checked = false;
+            
+            // Reset validation states
+            for (const field of filePathFields.yml) {
+                const input = document.getElementById(field.input);
+                const errorElement = document.getElementById(field.error);
+                if (input) input.classList.remove('error');
+                if (errorElement) errorElement.style.display = 'none';
+            }
+            
+            // Hide audio player initially
+            audioPlayerContainer.style.display = 'none';
+            
+            // Reset preview time validation
+            previewTimeError.style.display = 'none';
+            infoPreviewEnd.classList.remove('error');
+            
+            // Check if info.yml exists
+            const infoYmlResult = findInfoYmlFile();
+            
+            if (infoYmlResult) {
+                try {
+                    // Read the file
+                    const text = await infoYmlResult.file.text();
+                    const data = parseYAML(text);
+                    
+                    // Fill form fields
+                    if (data.name) document.getElementById('info-name').value = data.name;
+                    if (data.difficulty !== undefined) document.getElementById('info-difficulty').value = data.difficulty;
+                    if (data.level) document.getElementById('info-level').value = data.level;
+                    if (data.charter) document.getElementById('info-charter').value = data.charter;
+                    if (data.composer) document.getElementById('info-composer').value = data.composer;
+                    if (data.illustrator !== undefined) document.getElementById('info-illustrator').value = data.illustrator || '';
+                    if (data.chart) document.getElementById('info-chart').value = data.chart;
+                    if (data.music) document.getElementById('info-music').value = data.music;
+                    if (data.illustration) document.getElementById('info-illustration').value = data.illustration;
+                    if (data.unlockVideo !== undefined) document.getElementById('info-unlock-video').value = data.unlockVideo || '';
+                    if (data.previewStart !== undefined) document.getElementById('info-preview-start').value = data.previewStart;
+                    if (data.previewEnd !== undefined) document.getElementById('info-preview-end').value = data.previewEnd;
+                    if (data.aspectRatio !== undefined) document.getElementById('info-aspect-ratio').value = data.aspectRatio;
+                    if (data.backgroundDim !== undefined) document.getElementById('info-background-dim').value = data.backgroundDim;
+                    if (data.lineLength !== undefined) document.getElementById('info-line-length').value = data.lineLength;
+                    if (data.offset !== undefined) document.getElementById('info-offset').value = data.offset;
+                    if (data.tip !== undefined) document.getElementById('info-tip').value = data.tip || '';
+                    if (data.intro) document.getElementById('info-intro').value = data.intro;
+                    if (data.holdPartialCover !== undefined) document.getElementById('info-hold-partial-cover').checked = data.holdPartialCover;
+                    
+                    // Add tags
+                    if (data.tags && Array.isArray(data.tags)) {
+                        currentTags = [...data.tags];
+                        renderTags();
+                    }
+                    
+                    // Validate file paths
+                    validateAllFilePathFields('yml');
+                    
+                    // Validate preview time range
+                    validatePreviewTimeRange();
+                    
+                    // Update audio player
+                    updateAudioPlayer();
+                    
+                } catch (error) {
+                    console.error('Error reading info.yml:', error);
+                    showNotification('Error reading info.yml file', 'error');
+                }
+            }
+            
+            // Setup file path validation
+            setupFilePathValidation('yml');
+            
+            // Setup preview time validation
+            setupPreviewTimeValidation();
+            
+            // Setup audio player
+            setupAudioPlayer();
+            
+            // Setup tip field
+            setupTipField();
+            
+            // Show modal
+            infoYmlModal.style.display = 'flex';
+        }
+
+        // Open info.txt editor
+        async function openInfoTxtEditor() {
+            // Reset form fields
+            document.getElementById('info-txt-name').value = '';
+            document.getElementById('info-txt-path').value = '';
+            document.getElementById('info-txt-song').value = '';
+            document.getElementById('info-txt-picture').value = '';
+            document.getElementById('info-txt-chart').value = '';
+            document.getElementById('info-txt-level').value = '';
+            document.getElementById('info-txt-composer').value = '';
+            document.getElementById('info-txt-charter').value = '';
+            
+            // Reset validation states
+            for (const field of filePathFields.txt) {
+                const input = document.getElementById(field.input);
+                const errorElement = document.getElementById(field.error);
+                if (input) input.classList.remove('error');
+                if (errorElement) errorElement.style.display = 'none';
+            }
+            
+            // Check if info.txt exists
+            const infoTxtResult = findInfoTxtFile();
+            
+            if (infoTxtResult) {
+                try {
+                    // Read the file
+                    const text = await infoTxtResult.file.text();
+                    const data = parseInfoTxt(text);
+                    
+                    // Fill form fields
+                    if (data.Name) document.getElementById('info-txt-name').value = data.Name;
+                    if (data.Path) document.getElementById('info-txt-path').value = data.Path;
+                    if (data.Song) document.getElementById('info-txt-song').value = data.Song;
+                    if (data.Picture) document.getElementById('info-txt-picture').value = data.Picture;
+                    if (data.Chart) document.getElementById('info-txt-chart').value = data.Chart;
+                    if (data.Level) document.getElementById('info-txt-level').value = data.Level;
+                    if (data.Composer) document.getElementById('info-txt-composer').value = data.Composer;
+                    if (data.Charter) document.getElementById('info-txt-charter').value = data.Charter;
+                    
+                    // Validate file paths
+                    validateAllFilePathFields('txt');
+                    
+                } catch (error) {
+                    console.error('Error reading info.txt:', error);
+                    showNotification('Error reading info.txt file', 'error');
+                }
+            }
+            
+            // Setup file path validation
+            setupFilePathValidation('txt');
+            
+            // Show modal
+            infoTxtModal.style.display = 'flex';
+        }
+
+        // Render tags
+        function renderTags() {
+            tagsContainer.innerHTML = '';
+            
+            currentTags.forEach((tag, index) => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'tag';
+                tagElement.innerHTML = `
+                    ${tag}
+                    <span class="tag-remove" data-index="${index}">&times;</span>
+                `;
+                tagsContainer.appendChild(tagElement);
+                
+                // Add event listener to remove button
+                const removeBtn = tagElement.querySelector('.tag-remove');
+                removeBtn.addEventListener('click', () => {
+                    currentTags.splice(index, 1);
+                    renderTags();
+                });
+            });
+        }
+
+        // Add tag
+        function addTag() {
+            const tag = newTagInput.value.trim();
+            if (tag) {
+                currentTags.push(tag);
+                renderTags();
+                newTagInput.value = '';
+            }
+        }
+
+        // Save info.yml
+        async function saveInfoYml() {
+            try {
+                // Validate file paths
+                const pathsValid = validateAllFilePathFields('yml');
+                
+                // Validate preview time range
+                const previewTimeValid = validatePreviewTimeRange();
+                
+                if (!previewTimeValid) {
+                    showNotification('Preview duration cannot exceed 20 seconds', 'error');
+                    return;
+                }
+                
+                // Collect data from form
+                const data = {
+                    name: document.getElementById('info-name').value,
+                    difficulty: parseFloat(document.getElementById('info-difficulty').value) || 0,
+                    level: document.getElementById('info-level').value,
+                    charter: document.getElementById('info-charter').value,
+                    composer: document.getElementById('info-composer').value,
+                    illustrator: document.getElementById('info-illustrator').value,
+                    chart: document.getElementById('info-chart').value,
+                    format: null,
+                    music: document.getElementById('info-music').value,
+                    illustration: document.getElementById('info-illustration').value,
+                    unlockVideo: document.getElementById('info-unlock-video').value || null,
+                    previewStart: parseFloat(document.getElementById('info-preview-start').value) || 0,
+                    previewEnd: parseFloat(document.getElementById('info-preview-end').value) || 15,
+                    aspectRatio: parseFloat(document.getElementById('info-aspect-ratio').value) || 1.7777778,
+                    backgroundDim: parseFloat(document.getElementById('info-background-dim').value) || 0.6,
+                    lineLength: parseFloat(document.getElementById('info-line-length').value) || 6.0,
+                    offset: parseFloat(document.getElementById('info-offset').value) || 0,
+                    tip: document.getElementById('info-tip').value || null,
+                    tags: currentTags,
+                    intro: document.getElementById('info-intro').value,
+                    holdPartialCover: document.getElementById('info-hold-partial-cover').checked
+                };
+                
+                // Generate YAML
+                const yaml = generateYAML(data);
+                
+                // Create or update info.yml file
+                const infoYmlResult = findInfoYmlFile();
+                
+                if (infoYmlResult) {
+                    // Update existing file
+                    const index = infoYmlResult.index;
+                    const oldFile = importedFiles[index];
+                    const newFile = new File([yaml], oldFile.name, { type: 'text/yaml' });
+                    importedFiles[index] = newFile;
+                    showNotification('info.yml file updated successfully');
+                } else {
+                    // Create new file
+                    const newFile = new File([yaml], 'info.yml', { type: 'text/yaml' });
+                    importedFiles.push(newFile);
+                    showNotification('info.yml file created successfully');
+                }
+                
+                // Close modal and update table
+                infoYmlModal.style.display = 'none';
+                renderFilesTable();
+                
+                // Clean up audio player
+                if (currentAudioUrl) {
+                    URL.revokeObjectURL(currentAudioUrl);
+                    currentAudioUrl = null;
+                }
+                
+                // Stop audio playback
+                audioPlayer.pause();
+                
+            } catch (error) {
+                console.error('Error saving info.yml:', error);
+                showNotification('Error saving info.yml file', 'error');
+            }
+        }
+
+        // Save info.txt
+        async function saveInfoTxt() {
+            try {
+                // Validate file paths
+                const allValid = validateAllFilePathFields('txt');
+                
+                // Collect data from form
+                const data = {
+                    Name: document.getElementById('info-txt-name').value,
+                    Path: document.getElementById('info-txt-path').value,
+                    Song: document.getElementById('info-txt-song').value,
+                    Picture: document.getElementById('info-txt-picture').value,
+                    Chart: document.getElementById('info-txt-chart').value,
+                    Level: document.getElementById('info-txt-level').value,
+                    Composer: document.getElementById('info-txt-composer').value,
+                    Charter: document.getElementById('info-txt-charter').value
+                };
+                
+                // Generate info.txt
+                const txt = generateInfoTxt(data);
+                
+                // Create or update info.txt file
+                const infoTxtResult = findInfoTxtFile();
+                
+                if (infoTxtResult) {
+                    // Update existing file
+                    const index = infoTxtResult.index;
+                    const oldFile = importedFiles[index];
+                    const newFile = new File([txt], oldFile.name, { type: 'text/plain' });
+                    importedFiles[index] = newFile;
+                    showNotification('info.txt file updated successfully');
+                } else {
+                    // Create new file
+                    const newFile = new File([txt], 'info.txt', { type: 'text/plain' });
+                    importedFiles.push(newFile);
+                    showNotification('info.txt file created successfully');
+                }
+                
+                // Close modal and update table
+                infoTxtModal.style.display = 'none';
+                renderFilesTable();
+                
+            } catch (error) {
+                console.error('Error saving info.txt:', error);
+                showNotification('Error saving info.txt file', 'error');
+            }
+        }
+
+        // Event listeners
+        btnImportArchive.addEventListener('click', () => {
+            archiveFileInput.click();
+        });
+
+        archiveFileInput.addEventListener('change', (event) => {
+            if (event.target.files.length > 0) {
+                importArchive(event.target.files[0]);
+            }
+        });
+
+        btnImportFiles.addEventListener('click', () => {
+            filesInput.click();
+        });
+
+        filesInput.addEventListener('change', (event) => {
+            if (event.target.files.length > 0) {
+                importFiles(Array.from(event.target.files));
+            }
+        });
+
+        btnAddFile.addEventListener('click', () => {
+            addFileInput.click();
+        });
+
+        addFileInput.addEventListener('change', (event) => {
+            if (event.target.files.length > 0) {
+                importFiles(Array.from(event.target.files));
+            }
+        });
+
+        btnAddInfoYml.addEventListener('click', () => {
+            openInfoYmlEditor();
+        });
+
+        btnAddInfoTxt.addEventListener('click', () => {
+            openInfoTxtEditor();
+        });
+
+        btnFetchPhira.addEventListener('click', () => {
+            phiraModal.style.display = 'flex';
+            phiraIdInput.focus();
+        });
+
+        closePhiraModal.addEventListener('click', () => {
+            phiraModal.style.display = 'none';
+        });
+
+        fetchPhiraConfirm.addEventListener('click', () => {
+            const chartId = phiraIdInput.value.trim();
+            if (chartId) {
+                phiraModal.style.display = 'none';
+                fetchFromPhira(chartId);
+                phiraIdInput.value = '';
+            } else {
+                showNotification('Please enter a valid chart ID', 'error');
+            }
+        });
+
+        btnFlatten.addEventListener('click', flattenDirectory);
+        
+        btnCompressJson.addEventListener('click', compressJsonFiles);
+
+        btnExport.addEventListener('click', exportFiles);
+
+        btnReset.addEventListener('click', resetAll);
+
+        closeRenameModal.addEventListener('click', () => {
+            renameModal.style.display = 'none';
+        });
+
+        renameConfirm.addEventListener('click', confirmRename);
+
+        closeInfoYmlModal.addEventListener('click', () => {
+            infoYmlModal.style.display = 'none';
+            // Clean up audio player
+            if (currentAudioUrl) {
+                URL.revokeObjectURL(currentAudioUrl);
+                currentAudioUrl = null;
+            }
+            // Stop audio playback
+            audioPlayer.pause();
+        });
+
+        infoYmlSave.addEventListener('click', saveInfoYml);
+
+        closeInfoTxtModal.addEventListener('click', () => {
+            infoTxtModal.style.display = 'none';
+        });
+
+        infoTxtSave.addEventListener('click', saveInfoTxt);
+
+        addTagBtn.addEventListener('click', addTag);
+
+        newTagInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                addTag();
+            }
+        });
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target === phiraModal) {
+                phiraModal.style.display = 'none';
+            }
+            if (event.target === renameModal) {
+                renameModal.style.display = 'none';
+            }
+            if (event.target === infoYmlModal) {
+                infoYmlModal.style.display = 'none';
+                // Clean up audio player
+                if (currentAudioUrl) {
+                    URL.revokeObjectURL(currentAudioUrl);
+                    currentAudioUrl = null;
+                }
+                // Stop audio playback
+                audioPlayer.pause();
+            }
+            if (event.target === infoTxtModal) {
+                infoTxtModal.style.display = 'none';
+            }
+        });
+
+        // Allow pressing Enter in the Phira ID input
+        phiraIdInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                fetchPhiraConfirm.click();
+            }
+        });
+
+        // Allow pressing Enter in the rename input
+        renameInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                renameConfirm.click();
+            }
+        });
+    </script>
+</body>
+</html>
